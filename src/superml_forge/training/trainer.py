@@ -49,11 +49,13 @@ def train_and_tune_models(
     all_results: List[ModelResult] = []
 
     for name, base_model in models.items():
-        use_manual = manual_params is not None and selected_model_name == name
-        if use_manual:
+        if manual_params is not None and selected_model_name == name:
             base_model = base_model.set_params(**manual_params)
+            use_manual = True
+        else:
+            use_manual = False
 
-        pipeline = build_full_pipeline(X_train, base_model)
+        pipeline = build_full_pipeline(X_train, base_model, problem_type=problem_type)
         param_distributions = {} if use_manual else param_grids.get(name, {})
 
         if param_distributions:
@@ -89,7 +91,7 @@ def train_and_tune_models(
                 best_score = float(np.mean(cv_scores))
             else:
                 best_score = float(-np.mean(cv_scores))
-            best_params = manual_params if use_manual else {}
+            best_params = manual_params if (use_manual and manual_params is not None) else {}
 
         all_results.append(
             ModelResult(

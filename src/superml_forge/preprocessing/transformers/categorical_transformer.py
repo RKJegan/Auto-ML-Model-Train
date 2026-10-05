@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from typing import Literal
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
@@ -12,17 +13,20 @@ def _clean_categorical_values(data: pd.DataFrame) -> pd.DataFrame:
     """Normalize string values and convert blanks to NaN for categorical columns."""
     cleaned = data.copy()
     for col in cleaned.columns:
-        series = cleaned[col]
-        series = series.astype("string").str.strip()
-        series = series.replace(r"^\s*$", np.nan, regex=True)
-        cleaned[col] = series
+        cleaned[col] = cleaned[col].astype(object)
+        mask = cleaned[col].notna()
+        cleaned.loc[mask, col] = cleaned.loc[mask, col].astype(str).str.strip()
+        cleaned[col] = cleaned[col].replace(r"^\s*$", np.nan, regex=True)
+        
+    cleaned = cleaned.fillna(np.nan)
+    cleaned = cleaned.replace({pd.NA: np.nan})
     return cleaned
 
 
 def build_categorical_pipeline(
-    imputer_strategy: str = "constant",
+    imputer_strategy: str = "most_frequent",
     fill_value: str = "missing",
-    handle_unknown: str = "ignore",
+    handle_unknown: Literal["error", "ignore", "infrequent_if_exist"] = "ignore",
 ) -> Pipeline:
     """Build a pipeline that cleans, imputes, and one-hot encodes categorical features."""
     return Pipeline(

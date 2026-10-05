@@ -26,6 +26,7 @@ from src.superml_forge.unsupervised.clustering.registry import (
     get_clustering_models,
     get_clustering_param_options,
 )
+# pyrefly: ignore [missing-import]
 from src.superml_forge.unsupervised.dimensionality_reduction.registry import (
     get_reduction_models,
     get_reduction_param_options,
@@ -99,7 +100,7 @@ def display_dataset_info(info: DatasetInfo) -> None:
     with col1:
         st.write("**Shape** (rows, columns):", info.shape)
         st.write("**Column types:**")
-        st.dataframe(info.dtypes.to_frame("dtype"))
+        st.dataframe(info.dtypes.astype(str).to_frame("dtype"))
 
     with col2:
         st.write("**Head:**")
@@ -186,7 +187,7 @@ def get_manual_hyperparameters(problem_type: str, model_name: Optional[str]) -> 
                 max_iter = st.number_input("max_iter", 100, 5000, 1000, step=100)
                 penalty = st.selectbox("penalty", ["l2"])
                 solver = st.selectbox("solver", ["lbfgs", "liblinear"])
-                return {"C": C, "max_iter": int(max_iter), "penalty": penalty, "solver": solver}
+                return {"C": C, "max_iter": max_iter, "penalty": penalty, "solver": solver}
 
             if model_name == "Decision Tree":
                 criterion = st.selectbox("criterion", ["gini", "entropy", "log_loss"])
@@ -197,8 +198,8 @@ def get_manual_hyperparameters(problem_type: str, model_name: Optional[str]) -> 
                 return {
                     "criterion": criterion,
                     "max_depth": max_depth,
-                    "min_samples_split": int(min_samples_split),
-                    "min_samples_leaf": int(min_samples_leaf),
+                    "min_samples_split": min_samples_split,
+                    "min_samples_leaf": min_samples_leaf,
                 }
 
             if model_name == "Random Forest":
@@ -208,10 +209,10 @@ def get_manual_hyperparameters(problem_type: str, model_name: Optional[str]) -> 
                 min_samples_split = st.number_input("min_samples_split", 2, 50, 2, step=1)
                 min_samples_leaf = st.number_input("min_samples_leaf", 1, 50, 1, step=1)
                 return {
-                    "n_estimators": int(n_estimators),
+                    "n_estimators": n_estimators,
                     "max_depth": max_depth,
-                    "min_samples_split": int(min_samples_split),
-                    "min_samples_leaf": int(min_samples_leaf),
+                    "min_samples_split": min_samples_split,
+                    "min_samples_leaf": min_samples_leaf,
                 }
 
             if model_name == "SVM":
@@ -234,7 +235,7 @@ def get_manual_hyperparameters(problem_type: str, model_name: Optional[str]) -> 
             if model_name == "Lasso Regression":
                 alpha = st.number_input("alpha", 0.0001, 1000.0, 1.0, step=0.1)
                 max_iter = st.number_input("max_iter", 100, 5000, 1000, step=100)
-                return {"alpha": alpha, "max_iter": int(max_iter)}
+                return {"alpha": alpha, "max_iter": max_iter}
 
             if model_name == "Random Forest Regressor":
                 n_estimators = st.number_input("n_estimators", 10, 1000, 100, step=10)
@@ -243,10 +244,10 @@ def get_manual_hyperparameters(problem_type: str, model_name: Optional[str]) -> 
                 min_samples_split = st.number_input("min_samples_split", 2, 50, 2, step=1)
                 min_samples_leaf = st.number_input("min_samples_leaf", 1, 50, 1, step=1)
                 return {
-                    "n_estimators": int(n_estimators),
+                    "n_estimators": n_estimators,
                     "max_depth": max_depth,
-                    "min_samples_split": int(min_samples_split),
-                    "min_samples_leaf": int(min_samples_leaf),
+                    "min_samples_split": min_samples_split,
+                    "min_samples_leaf": min_samples_leaf,
                 }
 
     return None
@@ -265,7 +266,7 @@ def display_model_results(
     st.write(f"**Best algorithm:** {best_result.name}")
 
     if problem_type == "classification":
-        y_pred = best_result.best_estimator.predict(X_test)
+        y_pred = getattr(best_result.best_estimator, "predict")(X_test)
         acc = float(accuracy_score(y_test, y_pred))
         st.write("**Accuracy (test set):**")
         st.metric("Accuracy", f"{max(0.0, acc) * 100:.2f}%")
@@ -402,10 +403,16 @@ def run_supervised_flow(df: pd.DataFrame, uploaded_file) -> None:
             try:
                 train_df = df.copy()
 
+                from src.superml_forge.feature_engineering.feature_selector import filter_important_features
+                
                 # Target column is excluded from features: X = df.drop(target), y = df[target]
                 X_train, X_test, y_train, y_test = train_test_split_data(
                     train_df, target_column, problem_type
                 )
+                
+                # Filter out irrelevant IDs and high cardinality features
+                X_train = filter_important_features(X_train)
+                X_test = X_test[X_train.columns]  # Keep only the selected features in test set
 
                 best_result, all_results, comparison_df = train_and_tune_models(
                     X_train=X_train,
@@ -704,6 +711,13 @@ def run_unsupervised_flow(df: pd.DataFrame) -> None:
         options=["Clustering", "Dimensionality Reduction", "Anomaly Detection"],
         index=0,
     )
+
+    if unsupervised_task == "Clustering":
+        st.info("**Use Case:** Group similar data points together without predefined labels. Best for customer segmentation, finding hidden patterns, or organizing unstructured data into distinct groups.")
+    elif unsupervised_task == "Dimensionality Reduction":
+        st.info("**Use Case:** Reduce the number of columns in your dataset while keeping its core structure. Best for visualizing high-dimensional data in 2D, removing noise, or compressing data.")
+    elif unsupervised_task == "Anomaly Detection":
+        st.info("**Use Case:** Identify rare items or events that differ significantly from the rest of the data. Best for fraud detection, finding outliers, or identifying faulty equipment.")
 
     task_key = unsupervised_task.lower().replace(" ", "_")
 

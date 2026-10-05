@@ -37,3 +37,6 @@ line_length = 110
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
+
+[tool.pyright]
+extraPaths = ["."]

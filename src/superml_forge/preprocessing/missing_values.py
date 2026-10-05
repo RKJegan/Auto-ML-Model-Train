@@ -9,6 +9,6 @@ def get_numeric_imputer(strategy: str = "median") -> SimpleImputer:
     return SimpleImputer(strategy=strategy)
 
 
-def get_categorical_imputer(strategy: str = "constant", fill_value: str = "missing") -> SimpleImputer:
+def get_categorical_imputer(strategy: str = "most_frequent", fill_value: str = "missing") -> SimpleImputer:
     """Return an imputer for categorical features."""
     return SimpleImputer(strategy=strategy, fill_value=fill_value)
