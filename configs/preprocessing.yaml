@@ -1,0 +1,10 @@
+# Preprocessing configuration
+numeric:
+  imputer_strategy: median
+  scaler: standard
+
+categorical:
+  imputer_strategy: constant
+  imputer_fill_value: missing
+  encoder: onehot
+  handle_unknown: ignore

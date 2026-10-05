@@ -1,0 +1,2 @@
+"""Hist Gradient Boosting Regressor (scaffold)."""
+from __future__ import annotations

@@ -1,0 +1,14 @@
+# Evaluation configuration
+classification:
+  metrics:
+    - accuracy
+    - precision_weighted
+    - recall_weighted
+    - f1_weighted
+  plot_confusion_matrix: true
+
+regression:
+  metrics:
+    - rmse
+    - mae
+    - r2

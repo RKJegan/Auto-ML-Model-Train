@@ -1,0 +1,20 @@
+# Model configuration
+classification:
+  - name: Logistic Regression
+    enabled: true
+  - name: Decision Tree
+    enabled: true
+  - name: Random Forest
+    enabled: true
+  - name: SVM
+    enabled: true
+
+regression:
+  - name: Linear Regression
+    enabled: true
+  - name: Ridge Regression
+    enabled: true
+  - name: Lasso Regression
+    enabled: true
+  - name: Random Forest Regressor
+    enabled: true
