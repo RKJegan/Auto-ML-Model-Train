@@ -1,122 +1,115 @@
-# AutoML (SuperML-Forge)
+# AutoML (SuperML-Forge) 🚀
 
-An end-to-end **Automated Machine Learning** web application for both **supervised** and **unsupervised** learning tasks.
-Upload a tabular dataset, and the app will automatically preprocess data, train multiple models,
-and show you the best results with metrics and visualizations.
+An end-to-end, fully robust **Automated Machine Learning** web application built with Streamlit and Scikit-Learn. The platform handles both **supervised** and **unsupervised** learning tasks with enterprise-grade data preprocessing, automated feature engineering, and one-click deployment capabilities.
 
-## Features
+Upload any tabular dataset, and the app will automatically clean the data, engineer features, train multiple models, and show you the best results with interactive predictions.
+
+---
+
+## 🌟 Key Features
+
+### 1. Robust Data Preprocessing Engine
+- **Missing Value Central Tendency Imputation**: Instead of blindly dropping rows with missing values, the system intelligently imputes them based on statistical central tendency:
+  - *Numeric Features*: Uses the **Median** to prevent outliers from skewing the data.
+  - *Categorical Features*: Uses the **Statistical Mode** (most frequent value) to accurately represent missing classes.
+- **Advanced Null Handling (`pd.NA`)**: Safely parses and normalizes pandas extension types and string anomalies that typically crash standard machine learning pipelines.
+- **Categorical Encoding**: Automatically applies One-Hot Encoding with safe `handle_unknown="ignore"` logic to prevent inference crashes on unseen data.
+
+### 2. Automated Feature Engineering & Selection
+- **Intelligent ID Dropping**: The system scans your dataset and automatically drops irrelevant identifiers (e.g., `customerid`, `uuid`, `passengerid`) *before* they can confuse the model.
+- **High-Cardinality Filtering**: Automatically filters out text columns (like Names or Tickets) where >50% of the values are unique, reducing noise.
+- **100% Unique Numeric Dropping**: Identifies and drops numerical indexes pretending to be features.
+- **ANOVA F-Value Selection**: After basic cleaning, the Scikit-Learn pipeline runs statistical tests to drop the bottom 25% of the most useless features, keeping only the top 75% most predictive features (`SelectPercentile`).
+
+### 3. Smart Model Training & Tuning
+- **Automatic Task Detection**: Dynamically detects whether your target column requires **Classification** or **Regression**.
+- **Cross-Validated Search**: Tests multiple algorithms concurrently using `RandomizedSearchCV`.
+- **Manual Override Mode**: Want to tune hyperparameters yourself? Use the UI to manually select algorithms and set learning rates, max depths, and penalties.
+
+### 4. Interactive Prediction UI
+Once the model is trained, a dynamic form is generated on the web page. Because of the upfront feature filtering, **the UI will only ask you for the relevant, important features**, hiding the useless IDs and names.
+
+---
+
+## 🤖 Supported Models
 
 ### Supervised Learning
-- **Multi-format data ingestion**: CSV, Excel, TSV, JSON, Parquet, TXT
-- **Automatic problem detection**: Classification vs Regression
-- **Smart preprocessing**: Missing value imputation, categorical encoding, numerical scaling
-- **Model training & tuning**: Multiple algorithms with RandomizedSearchCV
-- **Evaluation metrics**: Accuracy, Precision, Recall, F1 (classification); RMSE, MAE, R² (regression)
-- **Interactive prediction**: Predict new values through the web UI
-- **Dual mode**: Automatic (tries all models) or Manual (pick your algorithm)
-
-### Unsupervised Learning
-- **Clustering**: K-Means, Mini-Batch K-Means, DBSCAN, Agglomerative, Mean Shift, Gaussian Mixture
-- **Dimensionality Reduction**: PCA, t-SNE, Truncated SVD
-- **Anomaly Detection**: Isolation Forest, Local Outlier Factor, One-Class SVM
-- **Metrics**: Silhouette Score, Calinski-Harabasz, Davies-Bouldin, Explained Variance, Anomaly %
-- **Visualizations**: Cluster scatter plots, 2D projections, score distributions
-- **Download results**: Export cluster labels, reduced data, anomaly flags as CSV
-
-## Supported Models
-
-### Supervised
-
 | Classification | Regression |
 |---|---|
 | Logistic Regression | Linear Regression |
-| Decision Tree | Ridge Regression |
-| Random Forest | Lasso Regression |
-| SVM | Random Forest Regressor |
+| Decision Tree Classifier | Ridge Regression |
+| Random Forest Classifier | Lasso Regression |
+| XGBoost (Coming Soon) | Random Forest Regressor |
 
-### Unsupervised
-
-| Clustering | Dim. Reduction | Anomaly Detection |
+### Unsupervised Learning
+| Clustering | Dimensionality Reduction | Anomaly Detection |
 |---|---|---|
 | K-Means | PCA | Isolation Forest |
 | Mini-Batch K-Means | t-SNE | Local Outlier Factor |
 | DBSCAN | Truncated SVD | One-Class SVM |
 | Agglomerative Clustering | | |
-| Mean Shift | | |
-| Gaussian Mixture | | |
 
-## Installation
+---
+
+## 🛠️ Installation & Local Setup
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/RKJegan/Auto-ML-Model-Train.git
+cd Auto-ML-Model-Train
+
+# 2. Create a virtual environment
 python -m venv .venv
 .venv\Scripts\activate  # Windows
 # source .venv/bin/activate  # macOS/Linux
 
+# 3. Install dependencies
 pip install -r requirements.txt
-```
 
-## Running the App
-
-```bash
+# 4. Run the Streamlit Application
 streamlit run app.py
 ```
+*Open `http://localhost:8501` in your browser.*
 
-Open `http://localhost:8501` in your browser.
+---
 
-## Project Structure
+## 🐳 Deployment (Docker & Render)
+
+This project includes a production-ready `Dockerfile` and can be hosted online for free using [Render](https://render.com/).
+
+**How to deploy to Render:**
+1. Go to **Render.com** and sign in with GitHub.
+2. Click **New +** -> **Web Service**.
+3. Connect your GitHub repository (`RKJegan/Auto-ML-Model-Train`).
+4. In the settings, set:
+   - **Environment**: `Docker` *(Crucial: do not select Python)*
+   - **Branch**: `main`
+   - **Instance Type**: Free
+5. Click **Create Web Service**. 
+
+Render will automatically build the container from the `Dockerfile`, install the dependencies, and expose port `8501`. Within 3 minutes, your AutoML platform will be live on a public URL!
+
+---
+
+## 📂 Project Architecture
 
 ```
-SuperML-Forge/
-├── app.py                    # Streamlit web application
-├── src/superml_forge/        # Core ML package
-│   ├── ingestion/            # Data loading
-│   ├── validation/           # Data quality checks
-│   ├── profiling/            # Dataset statistics
-│   ├── task_detection/       # Classification/Regression detection
-│   ├── preprocessing/        # Imputation, encoding, scaling
-│   ├── splitting/            # Train/test split
-│   ├── models/               # Supervised model definitions & registry
-│   ├── training/             # Training loop & tuning
-│   ├── tuning/               # Hyperparameter search spaces
-│   ├── evaluation/           # Supervised metrics & feature importance
-│   ├── selection/            # Best model selection
-│   ├── prediction/           # Inference
-│   ├── unsupervised/         # Unsupervised learning
-│   │   ├── clustering/       # K-Means, DBSCAN, etc.
-│   │   ├── dimensionality_reduction/  # PCA, t-SNE, etc.
-│   │   ├── anomaly_detection/  # Isolation Forest, LOF, etc.
-│   │   └── evaluation/       # Clustering & anomaly metrics
-│   ├── pipeline/             # End-to-end orchestration
-│   └── utils/                # Logging, exceptions, helpers
-├── api/                      # FastAPI REST API
-├── configs/                  # YAML configuration files
-├── data/                     # Dataset storage
-├── artifacts/                # Trained model storage
-├── tests/                    # Unit & integration tests
-├── scripts/                  # CLI entry points
-├── notebooks/                # Exploration notebooks
-├── docs/                     # Documentation
-└── deployment/               # Docker & monitoring
+Auto-ML-Model-Train/
+├── app.py                    # Main Streamlit UI & Orchestrator
+├── Dockerfile                # Production Container definition
+├── src/superml_forge/        # Core ML Engine
+│   ├── feature_engineering/  # ID dropping & cardinality filtering
+│   ├── validation/           # pd.NA handling & data quality
+│   ├── preprocessing/        # Central tendency imputation & pipelines
+│   ├── splitting/            # Train/test split logic
+│   ├── training/             # RandomizedSearchCV loops
+│   └── unsupervised/         # Clustering & Anomaly Detection
+├── data/                     # Local dataset storage (gitignored)
+└── tests/                    # System Tests
 ```
 
-## How It Works
+---
 
-### Supervised Learning
-1. **Upload** a tabular dataset
-2. **Select** the target column
-3. **Detect** problem type automatically (Classification / Regression)
-4. **Train** multiple models with cross-validation and hyperparameter tuning
-5. **Evaluate** and select the best model
-6. **Predict** new values interactively
+## 📜 License
 
-### Unsupervised Learning
-1. **Upload** a tabular dataset
-2. **Choose** task: Clustering / Dimensionality Reduction / Anomaly Detection
-3. **Select** columns (optional) and algorithm mode (Automatic / Manual)
-4. **Run** the analysis
-5. **View** results: cluster labels, 2D plots, anomaly scores
-6. **Download** results as CSV
-
-## License
-
-MIT License – see [LICENSE](LICENSE) for details.
+MIT License – Copyright (c) Jegan R K. See [LICENSE](LICENSE) for details.
