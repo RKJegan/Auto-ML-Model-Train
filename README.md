@@ -3,7 +3,6 @@
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/framework-Streamlit%20%7C%20FastAPI-red.svg)](https://streamlit.io/)
 [![Machine Learning](https://img.shields.io/badge/ML-Scikit--Learn-orange.svg)](https://scikit-learn.org/)
-[![Container](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An enterprise-grade, full-stack **Automated Machine Learning (AutoML)** platform and interactive web application designed for tabular data. **SuperML-Forge** orchestrates the complete machine learning lifecycle from ingestion and intelligent data cleaning, to automated feature selection, hyperparameter tuning, model evaluation, artifact serialization, interactive web-based inference, and RESTful API serving.
@@ -26,8 +25,6 @@ An enterprise-grade, full-stack **Automated Machine Learning (AutoML)** platform
   - [1. Streamlit Web UI](#1-streamlit-interactive-web-dashboard)
   - [2. FastAPI RESTful Service](#2-fastapi-rest-service)
   - [3. Command-Line Interface (CLI)](#3-command-line-interface-cli)
-- [Docker & Containerized Deployment](#-docker--containerized-deployment)
-- [Deploying to Cloud (Render via Docker)](#-deploying-to-cloud-render-via-docker)
 - [API Documentation & Endpoints](#-api-documentation--endpoints)
 - [Configuration Management](#-configuration-management)
 - [Testing & Quality Assurance](#-testing--quality-assurance)
@@ -272,55 +269,6 @@ Train models directly from your terminal:
 ```bash
 python scripts/train.py --data "data/dataset.csv" --target "target_column" --output "artifacts/models"
 ```
-
----
-
-## 🐳 Docker & Containerized Deployment
-
-The repository includes an optimized `Dockerfile` based on `python:3.11-slim` with layer caching.
-
-### Build and Run with Docker
-```bash
-# Build the Docker image
-docker build -t auto-ml-forge .
-
-# Run the container (exposing Streamlit on 8501 and FastAPI on 8000)
-docker run -p 8501:8501 -p 8000:8000 auto-ml-forge
-```
-
-### Run with Docker Compose
-Mount volumes for datasets, artifacts, and logs automatically:
-```bash
-docker-compose up --build -d
-```
-To stop the services:
-```bash
-docker-compose down
-```
-
----
-
-## 🌐 Deploying to Cloud (Render via Docker)
-
-This application can be hosted online for free using [Render](https://render.com/).
-
-### Step-by-Step Guide
-1. **Fork or Push**: Ensure your project is on GitHub at `https://github.com/RKJegan/Auto-ML-Model-Train`.
-2. **Sign In to Render**: Navigate to [Render.com](https://render.com/) and link your GitHub account.
-3. **Create Web Service**:
-   - In your dashboard, click **New +** ➡️ **Web Service**.
-   - Select your repository: `RKJegan/Auto-ML-Model-Train`.
-4. **Configure Service Details**:
-   - **Name**: `auto-ml-forge` (or any custom identifier)
-   - **Region**: Select the region closest to you
-   - **Branch**: `main`
-   - **Root Directory**: *(Leave empty)*
-   - **Environment / Runtime**: Select **`Docker`** ⚠️ *(Crucial: do not select Python)*
-   - **Instance Type**: Select the **Free** tier
-5. **Deploy**:
-   - Click **Create Web Service**.
-   - Render reads your `Dockerfile`, installs dependencies, and boots Streamlit on port `8501`.
-   - Within 2-3 minutes, your live public URL (e.g., `https://auto-ml-forge.onrender.com`) will be available.
 
 ---
 
