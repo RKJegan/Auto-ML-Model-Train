@@ -329,6 +329,6 @@ make clean    # Cleans cached bytecode and test artifacts
 
 ## 📄 License & Credits
 
-- **Author**: Jegan R K
-- **Repository**: [https://github.com/RKJegan/Auto-ML-Model-Train](https://github.com/RKJegan/Auto-ML-Model-Train)
+- **Author**: Gnaneswaran B S | Jegan R K
+
 - **License**: Distributed under the **MIT License**. See [LICENSE](LICENSE) for full legal text.
